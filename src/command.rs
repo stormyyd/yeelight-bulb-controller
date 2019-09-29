@@ -1,16 +1,10 @@
-use serde::Serialize;
-use serde_json::Result;
-
 pub type Integer = i32;
 
-#[derive(Serialize)]
-#[serde(untagged)]
 pub enum Params {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Serialize)]
 pub struct Command {
     pub id: u16,
     pub method: String,
@@ -26,7 +20,19 @@ impl Command {
         }
     }
 
-    pub fn to_json(&self) -> Result<String> {
-        serde_json::to_string(self)
+    pub fn to_json(&self) -> String {
+        let params = self
+            .params
+            .iter()
+            .map(|p| match p {
+                Params::Integer(i) => i.to_string(),
+                Params::String(s) => format!("\"{}\"", s),
+            })
+            .collect::<Vec<String>>()
+            .join(",");
+        format!(
+            "{{\"id\":{},\"method\":\"{}\",\"params\":[{}]}}",
+            self.id, &self.method, params
+        )
     }
 }

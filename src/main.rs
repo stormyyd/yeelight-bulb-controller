@@ -1,10 +1,12 @@
+mod command;
+
 use rand::Rng;
 use std::env;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::net::{SocketAddr, TcpStream};
 use std::time;
 
-mod command;
+use command::Command;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,14 +18,11 @@ fn main() {
         return;
     }
 
-    let address = {
-        let address = &args[1];
-        address.parse::<SocketAddr>().expect("Invalid IP address")
-    };
+    let address = &args[1].parse::<SocketAddr>().expect("Invalid IP address");
     let mut c = {
         let method = &args[2];
         let id = rand::thread_rng().gen::<u16>();
-        command::Command::new(id, method)
+        Command::new(id, method)
     };
     for param in args[3..].iter() {
         match param.parse::<command::Integer>() {
@@ -31,20 +30,37 @@ fn main() {
             Err(_) => c.params.push(command::Params::String(String::from(param))),
         }
     }
-    let message = c.to_json().expect("encode command message error");
 
-    let mut stream =
-        TcpStream::connect_timeout(&address, time::Duration::new(5, 0)).expect("connection failed");
-    stream
-        .write_all(message.as_bytes())
-        .expect("cannot send message to your bulb");
-    stream
-        .write_all(b"\r\n")
-        .expect("cannot send message to your bulb");
-    let mut reader = BufReader::new(stream);
+    match send_command(&address, &c) {
+        Ok(message) => println!("{}", message),
+        Err(e) => eprintln!("{}", e),
+    };
+}
+
+fn send_command(address: &SocketAddr, c: &Command) -> io::Result<String> {
+    let message = c.to_json();
+    let stream = TcpStream::connect_timeout(&address, time::Duration::from_secs(5))?;
+    let mut reader = BufReader::new(&stream);
+    let mut writer = BufWriter::new(&stream);
+
+    // About why I send command message and "\r\n" separately
+    //
+    // Because If you send command message with "\r\n" together after the TCP
+    // connection is established immediately, your bulb will neither execute
+    // your command nor send response back.
+    //
+    //
+    // I don't know why, and I think maybe it is a bug from Yeelight.
+    //
+    // And then, I found two solutions:
+    // 1. Send command message and "\r\n" separately as I did.
+    // 2. Delay at least 0.1 second after the TCP connection is established.
+    writer.write_all(message.as_bytes())?;
+    writer.flush()?;
+    writer.write_all(b"\r\n")?;
+    writer.flush()?;
+
     let mut received_message = String::new();
-    reader
-        .read_line(&mut received_message)
-        .expect("cannot read message from your bulb");
-    println!("{}", received_message);
+    reader.read_line(&mut received_message)?;
+    Ok(received_message)
 }
