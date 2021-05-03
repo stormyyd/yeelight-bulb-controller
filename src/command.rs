@@ -12,14 +12,6 @@ pub struct Command {
 }
 
 impl Command {
-    pub fn new(id: u16, method: &str) -> Command {
-        Command {
-            id,
-            method: String::from(method),
-            params: Vec::new(),
-        }
-    }
-
     pub fn to_json(&self) -> String {
         let params = self
             .params

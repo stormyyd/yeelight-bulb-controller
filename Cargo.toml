@@ -1,6 +1,6 @@
 [package]
 name = "yeelight-bulb-controller"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Yingdong Yang <storm-yyd@outlook.com>"]
 license = "ISC"
 edition = "2018"
@@ -9,4 +9,4 @@ edition = "2018"
 lto = true
 
 [dependencies]
-rand = "0.7"
+rand = "0.8"

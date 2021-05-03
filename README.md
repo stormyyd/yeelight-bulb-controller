@@ -35,9 +35,9 @@ First, you need to enable "LAN Control" feature of your bulb by [following steps
 
 ```bash
 # On Windows
-./yeelight-bulb-controller.exe [BULB_IP] [METHOD] [PARAM1] [PARAM2] ...
+yeelight-bulb-controller.exe [BULB_ADDRESS] [METHOD] [PARAM1] [PARAM2] ...
 # On Linux or macOS
-./yeelight-bulb-controller [BULB_IP] [METHOD] [PARAM1] [PARAM2] ...
+./yeelight-bulb-controller [BULB_ADDRESS] [METHOD] [PARAM1] [PARAM2] ...
 ```
 
 ### Examples
@@ -45,25 +45,25 @@ First, you need to enable "LAN Control" feature of your bulb by [following steps
 Toggle your bulb:
 
 ```bash
-./yeelight-bulb-controller.exe [BULB_IP] toggle
+yeelight-bulb-controller.exe 192.168.1.123:55443 toggle
 ```
 
-Set bright of your bulb:
+Set bright to 50 for your bulb smoothly:
 
 ```bash
-./yeelight-bulb-controller.exe [BULB_IP] set_bright 50 smooth 500
+yeelight-bulb-controller.exe 192.168.1.123:55443 set_bright 50 smooth 500
 ```
 
-Turn on your bulb:
+Turn on your bulb smoothly:
 
 ```bash
-./yeelight-bulb-controller.exe [BULB_IP] set_power on smooth 500
+yeelight-bulb-controller.exe 192.168.1.123:55443 set_power on smooth 500
 ```
 
-Turn off your bulb:
+Turn off your bulb smoothly:
 
 ```bash
-./yeelight-bulb-controller.exe [BULB_IP] set_power off smooth 500
+yeelight-bulb-controller.exe 192.168.1.123:55443 set_power off smooth 500
 ```
 
 For more usage, please read [Yeelight WiFi Light Inter-Operation Specification](https://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf).
